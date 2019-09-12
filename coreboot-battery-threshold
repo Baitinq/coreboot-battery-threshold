@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+  then echo "This script needs to be run as root."
+  exit 1
+fi
+
+START_CHARGE_THRESH=""
+STOP_CHARGE_THRESH=""
+
+print_usage() {
+  echo "Usage: coreboot-battery-threshold [FLAG]"
+  echo "  Flags:"
+  echo "    [-s]: NEEDED   : start % for the battery to start charging"
+  echo "    [-p]: NEEDED   : stop % for the battery to stop charging"
+  echo "    [-h]: OPTIONAL : print help message"
+}
+
+while getopts 's:p:h' flag; do
+  case "${flag}" in
+    s) START_CHARGE_THRESH="${OPTARG}"    ;;
+    p) STOP_CHARGE_THRESH="${OPTARG}"     ;;
+    h) print_usage
+       exit 0                             ;;
+    *) print_usage
+       exit 1                             ;;
+  esac
+done
+
+if [ "$START_CHARGE_THRESH" == "" ]; then
+  print_usage
+  exit 1
+fi
+
+if [ "$STOP_CHARGE_THRESH" == "" ]; then
+  print_usage
+  exit 1
+fi
+
+
+#convert to hex
+START_CHARGE_HEX=$(printf '%x\n' $START_CHARGE_THRESH)
+STOP_CHARGE_HEX=$(printf '%x\n' $STOP_CHARGE_THRESHi)
+
+#Set start charge
+ectool -w 0xb0 -z 0x$START_CHARGE_HEX &>/dev/null
+
+#Set stop charge
+ectool -w 0xb1 -z 0x$STOP_CHARGE_HEX &>/dev/null
