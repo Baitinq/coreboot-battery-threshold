@@ -3,7 +3,7 @@ Description=Set battery thresholds on corebooted devices
 
 [Service]
 Type=simple
-ExecStart=/data/bin/coreboot-battery-threshold -s 67 -p 100
+ExecStart=/usr/bin/coreboot-battery-threshold -s 67 -p 100
 
 [Install]
 WantedBy=multi-user.target
